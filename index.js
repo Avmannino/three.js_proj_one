@@ -4,7 +4,7 @@ import { PointerLockControls } from './libs/PointerLockControls.js';
 import { GPUStatsPanel } from './libs/GPUStatsPanel.js';
 import Stats from './libs/stats.module.js'; // Import stats.js if not already in GPUStatsPanel
 import { Sky } from './libs/Sky.js';
-import { GUI } from './libs/lil-gui.module.min.js';
+// import { GUI } from './libs/lil-gui.module.min.js';
 
 let camera, scene, renderer;
 let sky, sun;
@@ -15,8 +15,8 @@ animate();
 
 function init() {
     // Camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1.6, 7);  // Position the camera at the height of an average person
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1200);
+    camera.position.set(-15, 1.6, 70);  // Position the camera at the height of an average person
 
     // Scene
     scene = new THREE.Scene();
@@ -102,11 +102,11 @@ function init() {
     document.addEventListener('keyup', onKeyUp);
 
     // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xFF9C3A, 8);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    directionalLight.position.set(2.5, 12, 6.5);
+    const directionalLight = new THREE.DirectionalLight(0x10D4FF, 2.0);
+    directionalLight.position.set(0.5, 2, 3.5);
     scene.add(directionalLight);
 
     // Load GLTF Model
@@ -123,6 +123,15 @@ function init() {
 
     // Resize handler
     window.addEventListener('resize', onWindowResize);
+
+    // Add mouse wheel event for zoom functionality
+    document.addEventListener('wheel', onDocumentMouseWheel, false);
+
+    function onDocumentMouseWheel(event) {
+        camera.fov += event.deltaY * 0.05;
+        camera.fov = THREE.MathUtils.clamp(camera.fov, 20, 150); // Limit the zoom level
+        camera.updateProjectionMatrix();
+    }
 
     // Animation loop
     function animate() {
@@ -169,7 +178,7 @@ function init() {
 function initSky() {
     // Add Sky
     sky = new Sky();
-    sky.scale.setScalar(450000);
+    sky.scale.setScalar(100000);
     scene.add(sky);
 
     sun = new THREE.Vector3();
@@ -203,14 +212,16 @@ function initSky() {
         renderer.render(scene, camera);
     }
 
-    const gui = new GUI();
-    gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
-    gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged);
-    gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
-    gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged);
-    gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
-    gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged);
-    gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged);
+    // Sky Control Panel
+
+    // const gui = new GUI();
+    // gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
+    // gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged);
+    // gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
+    // gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged);
+    // gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
+    // gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged);
+    // gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged);
 
     guiChanged();
 }
