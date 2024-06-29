@@ -4,7 +4,7 @@ import { PointerLockControls } from './libs/PointerLockControls.js';
 import { GPUStatsPanel } from './libs/GPUStatsPanel.js';
 import Stats from './libs/stats.module.js'; // Import stats.js if not already in GPUStatsPanel
 import { Sky } from './libs/Sky.js';
-import { GUI } from './libs/lil-gui.module.min.js';
+// import { GUI } from './libs/lil-gui.module.min.js';
 
 let camera, scene, renderer;
 let sky, sun;
@@ -15,7 +15,7 @@ animate();
 
 function init() {
     // Camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 9000000); // Adjusted near plane from 0.01 to 1
     camera.position.set(-15, 1.6, 70);  // Position the camera at the height of an average person
 
     // Scene
@@ -26,6 +26,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.sortObjects = false; // Added this line to prevent z-fighting
     document.body.appendChild(renderer.domElement);
 
     // Add PointerLockControls
@@ -79,7 +80,7 @@ function init() {
                 moveDown = true;
                 break;
             case 'Space':
-                if (canJump === true) velocity.y += 350;
+                if (canJump === true) velocity.y += 1000;
                 canJump = false;
                 break;
         }
@@ -140,20 +141,37 @@ function init() {
     document.addEventListener('mouseup', onMouseUp);
 
     // Add lights
-    const ambientLight = new THREE.AmbientLight(0xFFBA56, 8);
+    const ambientLight = new THREE.AmbientLight(0x603B06, 2.7);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0x10D4FF, 2.5);
-    directionalLight.position.set(0, 0, 10000);  // Position the light to the right, above, and in front of the scene
-    directionalLight.target.position.set(0, 0, 0);  // Target the light at the center of the scene
+    const directionalLight = new THREE.DirectionalLight(0xCB8013, 15);
+    directionalLight.position.set(-9000, 0, 0);  // Position the light to the right, above, and in front of the scene
+    directionalLight.target.position.set(0, 0, 5000);  // Target the light at the center of the scene
     scene.add(directionalLight);
     scene.add(directionalLight.target);
-    
 
-    // Load GLTF Model
+    // Load multiple GLTF Models
     const gltfLoader = new GLTFLoader();
+    
+    // First Model
     gltfLoader.load('assets/coast_sand_rocks_02_4k.gltf', function (gltf) {
         const model = gltf.scene;
+        model.position.x = -50000;
+        model.position.y = 165000; // Adjust this value to move the model higher in the sky
+        model.position.z = -800500;
+        model.scale.set(300, 300, 300); // Scale the model by a factor of 35
+        scene.add(model);
+    }, undefined, function (error) {
+        console.error('An error occurred while loading the GLTF file:', error);
+    });
+    
+    // Second Model
+    gltfLoader.load('assets/planet_two.gltf', function (gltf) {
+        const model = gltf.scene;
+        model.position.x = -105000;  // Adjust position for the second model
+        model.position.y = 100000; // Adjust height for the second model
+        model.position.z = 25000; // Adjust depth for the second model
+        model.scale.set(450, 450, 450); // Scale the second model
         scene.add(model);
     }, undefined, function (error) {
         console.error('An error occurred while loading the GLTF file:', error);
@@ -193,9 +211,9 @@ function init() {
         direction.y = Number(moveDown) - Number(moveUp);
         direction.normalize(); // this ensures consistent movements in all directions
 
-        if (moveForward || moveBackward) velocity.z -= direction.z * 1500.0 * delta;
-        if (moveLeft || moveRight) velocity.x -= direction.x * 1500.0 * delta;
-        if (moveUp || moveDown) velocity.y -= direction.y * 1500.0 * delta;
+        if (moveForward || moveBackward) velocity.z -= direction.z * 500000.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 50000.0 * delta;
+        if (moveUp || moveDown) velocity.y -= direction.y * 5000.0 * delta;
 
         controls.moveRight(-velocity.x * delta);
         controls.moveForward(-velocity.z * delta);
@@ -223,7 +241,8 @@ function init() {
 function initSky() {
     // Add Sky
     sky = new Sky();
-    sky.scale.setScalar(100000);
+    sky.scale.setScalar(500000); // Increase the scale to make the sky dome larger
+    sky.position.y = 5000; // Raise the sky dome higher up
     scene.add(sky);
 
     sun = new THREE.Vector3();
@@ -258,18 +277,18 @@ function initSky() {
     }
 
     // Sky Control Panel
-
-    const gui = new GUI();
-    gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
-    gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged);
-    gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
-    gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged);
-    gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
-    gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged);
-    gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged);
+    // const gui = new GUI();
+    // gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
+    // gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged);
+    // gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
+    // gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged);
+    // gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
+    // gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged);
+    // gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged);
 
     guiChanged();
 }
+
 
 function initFloor() {
     const textureLoader = new THREE.TextureLoader();
@@ -278,20 +297,18 @@ function initFloor() {
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(100, 100);
 
-    const floorGeometry = new THREE.PlaneGeometry(200000, 200000);
-    const floorMaterial = new THREE.MeshStandardMaterial({ map: texture });
+    const floorGeometry = new THREE.PlaneGeometry(9000000, 9000000);
+    const floorMaterial = new THREE.MeshStandardMaterial({ map: texture, polygonOffset: true, polygonOffsetFactor: -5, polygonOffsetUnits: -5 });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -150;
+    floor.position.y = -300;
     scene.add(floor);
 }
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
     renderer.setSize(window.innerWidth, window.innerHeight);
-
     render();
 }
 
