@@ -4,7 +4,7 @@ import { PointerLockControls } from './libs/PointerLockControls.js';
 import { GPUStatsPanel } from './libs/GPUStatsPanel.js';
 import Stats from './libs/stats.module.js'; // Import stats.js if not already in GPUStatsPanel
 import { Sky } from './libs/Sky.js';
-// import { GUI } from './libs/lil-gui.module.min.js';
+import { GUI } from './libs/lil-gui.module.min.js';
 
 let camera, scene, renderer;
 let sky, sun;
@@ -15,7 +15,7 @@ animate();
 
 function init() {
     // Camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1200);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
     camera.position.set(-15, 1.6, 70);  // Position the camera at the height of an average person
 
     // Scene
@@ -49,6 +49,8 @@ function init() {
     let moveBackward = false;
     let moveLeft = false;
     let moveRight = false;
+    let moveUp = false;
+    let moveDown = false;
     let canJump = false;
     let prevTime = performance.now();
 
@@ -69,6 +71,12 @@ function init() {
             case 'ArrowRight':
             case 'KeyD':
                 moveRight = true;
+                break;
+            case 'KeyQ':
+                moveUp = true;
+                break;
+            case 'KeyE':
+                moveDown = true;
                 break;
             case 'Space':
                 if (canJump === true) velocity.y += 350;
@@ -95,19 +103,52 @@ function init() {
             case 'KeyD':
                 moveRight = false;
                 break;
+            case 'KeyQ':
+                moveUp = false;
+                break;
+            case 'KeyE':
+                moveDown = false;
+                break;
+        }
+    };
+
+    const onMouseDown = function (event) {
+        switch (event.button) {
+            case 0: // Left button
+                moveUp = true;
+                break;
+            case 2: // Right button
+                moveDown = true;
+                break;
+        }
+    };
+
+    const onMouseUp = function (event) {
+        switch (event.button) {
+            case 0: // Left button
+                moveUp = false;
+                break;
+            case 2: // Right button
+                moveDown = false;
+                break;
         }
     };
 
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mouseup', onMouseUp);
 
     // Add lights
-    const ambientLight = new THREE.AmbientLight(0xFF9C3A, 8);
+    const ambientLight = new THREE.AmbientLight(0xFFBA56, 8);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0x10D4FF, 2.0);
-    directionalLight.position.set(0.5, 2, 3.5);
+    const directionalLight = new THREE.DirectionalLight(0x10D4FF, 2.5);
+    directionalLight.position.set(0, 0, 10000);  // Position the light to the right, above, and in front of the scene
+    directionalLight.target.position.set(0, 0, 0);  // Target the light at the center of the scene
     scene.add(directionalLight);
+    scene.add(directionalLight.target);
+    
 
     // Load GLTF Model
     const gltfLoader = new GLTFLoader();
@@ -120,6 +161,9 @@ function init() {
 
     // Initialize sky
     initSky();
+
+    // Initialize floor
+    initFloor();
 
     // Resize handler
     window.addEventListener('resize', onWindowResize);
@@ -146,21 +190,22 @@ function init() {
 
         direction.z = Number(moveForward) - Number(moveBackward);
         direction.x = Number(moveRight) - Number(moveLeft);
+        direction.y = Number(moveDown) - Number(moveUp);
         direction.normalize(); // this ensures consistent movements in all directions
 
-        if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-        if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+        if (moveForward || moveBackward) velocity.z -= direction.z * 1500.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 1500.0 * delta;
+        if (moveUp || moveDown) velocity.y -= direction.y * 1500.0 * delta;
 
         controls.moveRight(-velocity.x * delta);
         controls.moveForward(-velocity.z * delta);
+        controls.getObject().position.y += (velocity.y * delta); // Handle up/down movement
 
         if (controls.getObject().position.y < 1.6) {
             velocity.y = 0;
             controls.getObject().position.y = 1.6;
             canJump = true;
         }
-
-        controls.getObject().position.y += (velocity.y * delta); // new behavior
 
         // Update stats
         stats.update();
@@ -185,11 +230,11 @@ function initSky() {
 
     // GUI
     const effectController = {
-        turbidity: 1.3,
-        rayleigh: 2.033,
-        mieCoefficient: 0.041,
-        mieDirectionalG: 0.999,
-        elevation: 0,
+        turbidity: 7.7,
+        rayleigh: 2.754,
+        mieCoefficient: 0.015,
+        mieDirectionalG: 0.9994,
+        elevation: 0.25,
         azimuth: -112,
         exposure: renderer.toneMappingExposure
     };
@@ -214,16 +259,31 @@ function initSky() {
 
     // Sky Control Panel
 
-    // const gui = new GUI();
-    // gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
-    // gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged);
-    // gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
-    // gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged);
-    // gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
-    // gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged);
-    // gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged);
+    const gui = new GUI();
+    gui.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
+    gui.add(effectController, 'rayleigh', 0.0, 4, 0.001).onChange(guiChanged);
+    gui.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
+    gui.add(effectController, 'mieDirectionalG', 0.0, 1, 0.001).onChange(guiChanged);
+    gui.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
+    gui.add(effectController, 'azimuth', -180, 180, 0.1).onChange(guiChanged);
+    gui.add(effectController, 'exposure', 0, 1, 0.0001).onChange(guiChanged);
 
     guiChanged();
+}
+
+function initFloor() {
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load('assets/textures/floor_texture.jpg');
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(100, 100);
+
+    const floorGeometry = new THREE.PlaneGeometry(200000, 200000);
+    const floorMaterial = new THREE.MeshStandardMaterial({ map: texture });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -150;
+    scene.add(floor);
 }
 
 function onWindowResize() {
