@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { PointerLockControls } from './libs/PointerLockControls.js';
+import { GPUStatsPanel } from './libs/GPUStatsPanel.js';
+import Stats from './libs/stats.module.js'; // Import stats.js if not already in GPUStatsPanel
 
 // Scene
 const scene = new THREE.Scene();
@@ -21,6 +23,14 @@ const controls = new PointerLockControls(camera, document.body);
 document.body.addEventListener('click', () => {
     controls.lock();
 });
+
+// Add stats
+const stats = new Stats();
+stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+const gpuPanel = new GPUStatsPanel(renderer.getContext());
+stats.addPanel(gpuPanel);
+stats.showPanel(3); // Show the GPU panel
+document.body.appendChild(stats.dom);
 
 // Movement variables
 const velocity = new THREE.Vector3();
@@ -83,11 +93,11 @@ document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
 // Add lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 10, 7.5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+directionalLight.position.set(2.5, 12, 6.5);
 scene.add(directionalLight);
 
 // Load GLTF Model
@@ -136,6 +146,9 @@ function animate() {
     }
 
     controls.getObject().position.y += (velocity.y * delta); // new behavior
+
+    // Update stats
+    stats.update();
 
     // Render scene
     renderer.render(scene, camera);
