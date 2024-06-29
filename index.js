@@ -9,9 +9,7 @@ import { Sky } from './libs/Sky.js';
 let camera, scene, renderer;
 let sky, sun;
 
-// Initialize the scene
-init();
-animate();
+
 
 function init() {
     // Camera
@@ -189,6 +187,9 @@ function init() {
         console.error('An error occurred while loading the GLTF file:', error);
     });
 
+    // Start animation
+    animate();
+
     // Initialize sky
     initSky();
 
@@ -207,47 +208,44 @@ function init() {
         camera.updateProjectionMatrix();
     }
 
-    // Animation loop
-    function animate() {
-        requestAnimationFrame(animate);
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
 
-        const time = performance.now();
-        const delta = (time - prevTime) / 1000;
+    const time = performance.now();
+    const delta = (time - prevTime) / 1000;
 
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
+    velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
-        direction.z = Number(moveForward) - Number(moveBackward);
-        direction.x = Number(moveRight) - Number(moveLeft);
-        direction.y = Number(moveDown) - Number(moveUp);
-        direction.normalize(); // this ensures consistent movements in all directions
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveRight) - Number(moveLeft);
+    direction.y = Number(moveDown) - Number(moveUp);
+    direction.normalize(); // this ensures consistent movements in all directions
 
-        if (moveForward || moveBackward) velocity.z -= direction.z * 500000.0 * delta;
-        if (moveLeft || moveRight) velocity.x -= direction.x * 50000.0 * delta;
-        if (moveUp || moveDown) velocity.y -= direction.y * 5000.0 * delta;
+    if (moveForward || moveBackward) velocity.z -= direction.z * 500000.0 * delta;
+    if (moveLeft || moveRight) velocity.x -= direction.x * 50000.0 * delta;
+    if (moveUp || moveDown) velocity.y -= direction.y * 5000.0 * delta;
 
-        controls.moveRight(-velocity.x * delta);
-        controls.moveForward(-velocity.z * delta);
-        controls.getObject().position.y += (velocity.y * delta); // Handle up/down movement
+    controls.moveRight(-velocity.x * delta);
+    controls.moveForward(-velocity.z * delta);
+    controls.getObject().position.y += (velocity.y * delta); // Handle up/down movement
 
-        if (controls.getObject().position.y < 1.6) {
-            velocity.y = 0;
-            controls.getObject().position.y = 1.6;
-            canJump = true;
-        }
-
-        // Update stats
-        stats.update();
-
-        // Render scene
-        renderer.render(scene, camera);
-
-        prevTime = time;
+    if (controls.getObject().position.y < 1.6) {
+        velocity.y = 0;
+        controls.getObject().position.y = 1.6;
+        canJump = true;
     }
 
-    // Start animation
-    animate();
+    // Update stats
+    stats.update();
+
+    // Render scene
+    renderer.render(scene, camera);
+
+    prevTime = time;
+}
 }
 
 function initSky() {
@@ -261,12 +259,12 @@ function initSky() {
 
     // GUI
     const effectController = {
-        turbidity: 7.7,
-        rayleigh: 2.754,
-        mieCoefficient: 0.015,
+        turbidity: 0.3,
+        rayleigh: 0.313,
+        mieCoefficient: 0.012,
         mieDirectionalG: 0.9994,
-        elevation: 0.25,
-        azimuth: -112,
+        elevation: 0.1,
+        azimuth: -120.9,
         exposure: renderer.toneMappingExposure
     };
 
@@ -327,3 +325,6 @@ function onWindowResize() {
 function render() {
     renderer.render(scene, camera);
 }
+
+// Initialize the scene
+init();
