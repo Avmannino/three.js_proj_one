@@ -152,26 +152,38 @@ function init() {
 
     // Load multiple GLTF Models
     const gltfLoader = new GLTFLoader();
-    
+
     // First Model
     gltfLoader.load('assets/coast_sand_rocks_02_4k.gltf', function (gltf) {
         const model = gltf.scene;
         model.position.x = -50000;
-        model.position.y = 165000; // Adjust this value to move the model higher in the sky
+        model.position.y = 350000; // Adjust this value to move the model higher in the sky
         model.position.z = -800500;
-        model.scale.set(300, 300, 300); // Scale the model by a factor of 35
+        model.scale.set(1300, 1300, 1300); // Scale the model by a factor of 35
         scene.add(model);
     }, undefined, function (error) {
         console.error('An error occurred while loading the GLTF file:', error);
     });
-    
+
     // Second Model
     gltfLoader.load('assets/planet_two.gltf', function (gltf) {
         const model = gltf.scene;
-        model.position.x = -105000;  // Adjust position for the second model
-        model.position.y = 100000; // Adjust height for the second model
-        model.position.z = 25000; // Adjust depth for the second model
-        model.scale.set(450, 450, 450); // Scale the second model
+        model.position.x = -285000;  // Adjust position for the second model
+        model.position.y = 205000; // Adjust height for the second model
+        model.position.z = 5000; // Adjust depth for the second model
+        model.scale.set(4050, 4050, 4050); // Scale the second model
+        scene.add(model);
+    }, undefined, function (error) {
+        console.error('An error occurred while loading the GLTF file:', error);
+    });
+
+    // Third Model
+    gltfLoader.load('assets/planet_three.gltf', function (gltf) {
+        const model = gltf.scene;
+        model.position.x = -185000;  // Adjust position for the second model
+        model.position.y = 155000; // Adjust height for the second model
+        model.position.z = 5000; // Adjust depth for the second model
+        model.scale.set(4050, 4050, 4050); // Scale the second model
         scene.add(model);
     }, undefined, function (error) {
         console.error('An error occurred while loading the GLTF file:', error);
@@ -241,7 +253,7 @@ function init() {
 function initSky() {
     // Add Sky
     sky = new Sky();
-    sky.scale.setScalar(500000); // Increase the scale to make the sky dome larger
+    sky.scale.setScalar(3000000); // Increase the scale to make the sky dome larger
     sky.position.y = 5000; // Raise the sky dome higher up
     scene.add(sky);
 

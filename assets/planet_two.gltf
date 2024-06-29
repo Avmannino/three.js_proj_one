@@ -1,6 +1,6 @@
 {
   "asset": {
-    "generator": "Khronos glTF Blender I/O v4.0.44",
+    "generator": "Khronos glTF Blender I/O v3.3.32",
     "version": "2.0"
   },
   "scene": 0,
@@ -21,7 +21,7 @@
   "materials": [
     {
       "doubleSided": true,
-      "name": "painted_brick",
+      "name": "dark_wood",
       "normalTexture": {
         "index": 0
       },
@@ -69,47 +69,47 @@
   "images": [
     {
       "mimeType": "image/jpeg",
-      "name": "painted_brick_nor_gl",
-      "uri": "textures/painted_brick_nor_gl_4k.jpg"
+      "name": "dark_wood_nor_gl_8k",
+      "uri": "textures/dark_wood_nor_gl_4k.jpg"
     },
     {
       "mimeType": "image/jpeg",
-      "name": "painted_brick_diff",
-      "uri": "textures/painted_brick_diff_4k.jpg"
+      "name": "dark_wood_diff_8k",
+      "uri": "textures/dark_wood_diff_4k.jpg"
     },
     {
       "mimeType": "image/jpeg",
-      "name": "painted_brick_rough",
-      "uri": "textures/painted_brick_arm_4k.jpg"
+      "name": "dark_wood_rough_8k",
+      "uri": "textures/dark_wood_rough_4k.jpg"
     }
   ],
   "accessors": [
     {
       "bufferView": 0,
       "componentType": 5126,
-      "count": 53921,
+      "count": 53889,
       "max": [
-        0.92149418592453,
-        0.9227407574653625,
-        0.923003613948822
+        0.9999884366989136,
+        0.9999898672103882,
+        0.999988853931427
       ],
       "min": [
-        -0.9214940667152405,
-        -0.9235638976097107,
-        -0.9230655431747437
+        -0.9999884366989136,
+        -0.999990701675415,
+        -0.999988853931427
       ],
       "type": "VEC3"
     },
     {
       "bufferView": 1,
       "componentType": 5126,
-      "count": 53921,
+      "count": 53889,
       "type": "VEC3"
     },
     {
       "bufferView": 2,
       "componentType": 5126,
-      "count": 53921,
+      "count": 53889,
       "type": "VEC2"
     },
     {
@@ -122,26 +122,26 @@
   "bufferViews": [
     {
       "buffer": 0,
-      "byteLength": 647052,
+      "byteLength": 646668,
       "byteOffset": 0,
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteLength": 647052,
-      "byteOffset": 647052,
+      "byteLength": 646668,
+      "byteOffset": 646668,
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteLength": 431368,
-      "byteOffset": 1294104,
+      "byteLength": 431112,
+      "byteOffset": 1293336,
       "target": 34962
     },
     {
       "buffer": 0,
       "byteLength": 644340,
-      "byteOffset": 1725472,
+      "byteOffset": 1724448,
       "target": 34963
     }
   ],
@@ -153,8 +153,8 @@
   ],
   "buffers": [
     {
-      "byteLength": 2369812,
-      "uri": "painted_brick.bin"
+      "byteLength": 2368788,
+      "uri": "dark_wood.bin"
     }
   ]
 }
