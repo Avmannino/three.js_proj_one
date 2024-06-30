@@ -10,6 +10,27 @@ let camera, scene, renderer;
 let sky, sun, water;
 let controls, stats;
 let velocity, direction, moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown, canJump, prevTime;
+let waterRocksModels = []; // Array to store multiple instances of the loaded model
+
+function loadModel(url, position, scale, scene, rotation) {
+    const gltfLoader = new GLTFLoader();
+
+    gltfLoader.load(url, function (gltf) {
+        const model = gltf.scene;
+        model.position.copy(position);
+        model.scale.set(scale, scale, scale);
+
+        if (rotation) {
+            model.rotation.copy(rotation);
+        }
+
+        scene.add(model);
+    }, undefined, function (error) {
+        console.error(`An error occurred while loading the model from the GLTF file:`, error);
+    });
+}
+
+
 
 function animate() {
     requestAnimationFrame(animate);
@@ -32,7 +53,7 @@ function animate() {
 
     controls.moveRight(-velocity.x * delta);
     controls.moveForward(-velocity.z * delta);
-    controls.getObject().position.y += (velocity.y * delta);
+    controls.getObject().position.y += velocity.y * delta;
 
     if (controls.getObject().position.y < 1.6) {
         velocity.y = 0;
@@ -56,14 +77,19 @@ function animate() {
         mirrorCamera.lookAt(0, water.position.y, 0);
     }
 
+    // Animate all waterRocksModels in the array
+    waterRocksModels.forEach((model) => {
+        model.rotation.y += 0.00; // Example of animation
+    });
+
     renderer.render(scene, camera);
 
     prevTime = time;
 }
 
 function init() {
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 9000000);
-    camera.position.set(-15, 1.6, 70);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 50000000);
+    camera.position.set(-15, 10.6, 70);
 
     scene = new THREE.Scene();
 
@@ -139,6 +165,17 @@ function init() {
     }, undefined, function (error) {
         console.error('An error occurred while loading the GLTF file:', error);
     });
+
+
+
+    // Load multiple instances using the loadModel function
+    const rotation1 = new THREE.Euler(0, Math.PI / 2, 0);  // Rotate 90 degrees around y-axis
+    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-80000, -120, -50000), 2050, scene, rotation1);
+
+    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, -36000), 2050, scene);
+    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, -18000), 2050, scene);
+    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, 5000), 2050, scene);
+    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, 25000), 2050, scene);
 
     animate();
     initSky();
