@@ -30,8 +30,6 @@ function loadModel(url, position, scale, scene, rotation) {
     });
 }
 
-
-
 function animate() {
     requestAnimationFrame(animate);
 
@@ -49,7 +47,7 @@ function animate() {
 
     if (moveForward || moveBackward) velocity.z -= direction.z * 500000.0 * delta;
     if (moveLeft || moveRight) velocity.x -= direction.x * 50000.0 * delta;
-    if (moveUp || moveDown) velocity.y -= direction.y * 5000.0 * delta;
+    if (moveUp || moveDown) velocity.y -= direction.y * 10000.0 * delta;
 
     controls.moveRight(-velocity.x * delta);
     controls.moveForward(-velocity.z * delta);
@@ -88,7 +86,7 @@ function animate() {
 }
 
 function init() {
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 50000000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000000);
     camera.position.set(-15, 10.6, 70);
 
     scene = new THREE.Scene();
@@ -128,7 +126,7 @@ function init() {
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mouseup', onMouseUp);
 
-    const ambientLight = new THREE.AmbientLight(0x603B06, 2.7);
+    const ambientLight = new THREE.AmbientLight(0xf1a6e5, 2.7);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xCB8013, 15);
@@ -165,8 +163,6 @@ function init() {
     }, undefined, function (error) {
         console.error('An error occurred while loading the GLTF file:', error);
     });
-
-
 
     // Load multiple instances using the loadModel function
     const rotation1 = new THREE.Euler(0, Math.PI / 2, 0);  // Rotate 90 degrees around y-axis
@@ -215,13 +211,20 @@ function initSky() {
 
 function initFloor() {
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load('assets/textures/floor_texture.jpg');
+    const texture = textureLoader.load('assets/floor_texture_1.jpg');
+
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(20, 20);
+    texture.repeat.set(10, 10);
 
-    const floorGeometry = new THREE.PlaneGeometry(3000000, 3000000);
-    const floorMaterial = new THREE.MeshStandardMaterial({ map: texture, polygonOffset: true, polygonOffsetFactor: -8, polygonOffsetUnits: -8 });
+    const floorGeometry = new THREE.PlaneGeometry(5000000, 5000000);
+    const floorMaterial = new THREE.MeshStandardMaterial({
+        map: texture,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2
+    });
+
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -1000;
