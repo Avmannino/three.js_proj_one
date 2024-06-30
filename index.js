@@ -1,16 +1,15 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { PointerLockControls } from './libs/PointerLockControls.js';
-import { GPUStatsPanel } from './libs/GPUStatsPanel.js';
-import Stats from './libs/stats.module.js';
 import { Sky } from './libs/Sky.js';
-import { Water } from './libs/Water2.js';
+// import { Water } from './libs/Water2.js';
 
 let camera, scene, renderer;
 let sky, sun, water;
-let controls, stats;
+let controls;
 let velocity, direction, moveForward, moveBackward, moveLeft, moveRight, moveUp, moveDown, canJump, prevTime;
 let waterRocksModels = []; // Array to store multiple instances of the loaded model
+let mountainsideModels = []; // Array to store multiple instances of the new loaded model
 
 function loadModel(url, position, scale, scene, rotation) {
     const gltfLoader = new GLTFLoader();
@@ -45,8 +44,8 @@ function animate() {
     direction.y = Number(moveDown) - Number(moveUp);
     direction.normalize();
 
-    if (moveForward || moveBackward) velocity.z -= direction.z * 500000.0 * delta;
-    if (moveLeft || moveRight) velocity.x -= direction.x * 50000.0 * delta;
+    if (moveForward || moveBackward) velocity.z -= direction.z * 3500000.0 * delta;
+    if (moveLeft || moveRight) velocity.x -= direction.x * 150000.0 * delta;
     if (moveUp || moveDown) velocity.y -= direction.y * 10000.0 * delta;
 
     controls.moveRight(-velocity.x * delta);
@@ -59,10 +58,6 @@ function animate() {
         canJump = true;
     }
 
-    // Update stats if available
-    if (stats) {
-        stats.update();
-    }
 
     // Update water if available
     if (water && water.material && water.material.uniforms && water.material.uniforms['time']) {
@@ -77,6 +72,11 @@ function animate() {
 
     // Animate all waterRocksModels in the array
     waterRocksModels.forEach((model) => {
+        model.rotation.y += 0.00; // Example of animation
+    });
+
+    // Animate all newAssetModels in the array
+    mountainsideModels.forEach((model) => {
         model.rotation.y += 0.00; // Example of animation
     });
 
@@ -103,13 +103,6 @@ function init() {
         controls.lock();
     });
 
-    stats = new Stats();
-    stats.showPanel(0);
-    const gpuPanel = new GPUStatsPanel(renderer.getContext());
-    stats.addPanel(gpuPanel);
-    stats.showPanel(0);
-    document.body.appendChild(stats.dom);
-
     velocity = new THREE.Vector3();
     direction = new THREE.Vector3();
     moveForward = false;
@@ -126,7 +119,7 @@ function init() {
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mouseup', onMouseUp);
 
-    const ambientLight = new THREE.AmbientLight(0xf1a6e5, 2.7);
+    const ambientLight = new THREE.AmbientLight(0xf1a6e5, 3);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xCB8013, 15);
@@ -139,8 +132,8 @@ function init() {
 
     gltfLoader.load('assets/coast_sand_rocks_02_4k.gltf', function (gltf) {
         const model = gltf.scene;
-        model.position.set(-50000, 350000, -800500);
-        model.scale.set(1300, 1300, 1300);
+        model.position.set(250000, 2500000, -800500);
+        model.scale.set(2300, 2300, 2300);
         scene.add(model);
     }, undefined, function (error) {
         console.error('An error occurred while loading the GLTF file:', error);
@@ -148,7 +141,7 @@ function init() {
 
     gltfLoader.load('assets/planet_two.gltf', function (gltf) {
         const model = gltf.scene;
-        model.position.set(-285000, 205000, 5000);
+        model.position.set(-685000, 255000, 5000);
         model.scale.set(4050, 4050, 4050);
         scene.add(model);
     }, undefined, function (error) {
@@ -157,7 +150,7 @@ function init() {
 
     gltfLoader.load('assets/planet_three.gltf', function (gltf) {
         const model = gltf.scene;
-        model.position.set(-185000, 155000, 5000);
+        model.position.set(-185000, 200000, 5000);
         model.scale.set(4050, 4050, 4050);
         scene.add(model);
     }, undefined, function (error) {
@@ -165,25 +158,40 @@ function init() {
     });
 
     // Load multiple instances using the loadModel function
-    const rotation1 = new THREE.Euler(0, Math.PI / 2, 0);  // Rotate 90 degrees around y-axis
-    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-80000, -120, -50000), 2050, scene, rotation1);
+    // const rotation1 = new THREE.Euler(0, Math.PI / 2, 0);  // Rotate 90 degrees around y-axis
+    // loadModel('assets/water_rocks.gltf', new THREE.Vector3(-80000, -120, -50000), 2050, scene, rotation1);
 
-    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, -36000), 2050, scene);
-    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, -18000), 2050, scene);
-    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, 5000), 2050, scene);
-    loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, 25000), 2050, scene);
+    // loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, -36000), 2050, scene);
+    // loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, -18000), 2050, scene);
+    // loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, 5000), 2050, scene);
+    // loadModel('assets/water_rocks.gltf', new THREE.Vector3(-100000, -120, 25000), 2050, scene);
+
+    // Load multiple instances of the new asset
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(-3500000, 100, -3500000), 10000, scene); // 1
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(-2200000, 100, -3500000), 10000, scene); // 2
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(-900000, 100, -3500000), 10000, scene); // 3
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(400000, 100, -3500000), 10000, scene); // 4
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(1900000, 100, -3500000), 10000, scene); // 5
+
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(3500000, 100, -3500000), 10000, scene); // 6
+
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(3800000, 100, -2200000), 10000, scene); // 1
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(3800000, 100, -600000), 10000, scene); // 2
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(3800000, 100, 950000), 10000, scene); // 3
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(3800000, 100, 2200000), 10000, scene); // 4
+    loadModel('assets/mountainside.gltf', new THREE.Vector3(3800000, 100, 3700000), 10000, scene); // 5
 
     animate();
     initSky();
     initFloor();
-    initWater();
+    // initWater();
     window.addEventListener('resize', onWindowResize);
     document.addEventListener('wheel', onDocumentMouseWheel, false);
 }
 
 function initSky() {
     sky = new Sky();
-    sky.scale.setScalar(3000000);
+    sky.scale.setScalar(8200000);
     sky.position.y = 5000;
     scene.add(sky);
 
@@ -191,13 +199,13 @@ function initSky() {
 
     function guiChanged() {
         const uniforms = sky.material.uniforms;
-        uniforms['turbidity'].value = 0.3;
-        uniforms['rayleigh'].value = 0.313;
-        uniforms['mieCoefficient'].value = 0.012;
-        uniforms['mieDirectionalG'].value = 0.9994;
+        uniforms['turbidity'].value = 10;
+        uniforms['rayleigh'].value = 2;
+        uniforms['mieCoefficient'].value = 0.005;
+        uniforms['mieDirectionalG'].value = 0.8;
 
-        const phi = THREE.MathUtils.degToRad(90 - 0.1);
-        const theta = THREE.MathUtils.degToRad(-120.9);
+        const phi = THREE.MathUtils.degToRad(90 - 0.2);
+        const theta = THREE.MathUtils.degToRad(-30);
 
         sun.setFromSphericalCoords(1, phi, theta);
 
@@ -215,9 +223,9 @@ function initFloor() {
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(10, 10);
+    texture.repeat.set(5, 5);
 
-    const floorGeometry = new THREE.PlaneGeometry(5000000, 5000000);
+    const floorGeometry = new THREE.PlaneGeometry(8000000, 8000000);
     const floorMaterial = new THREE.MeshStandardMaterial({
         map: texture,
         polygonOffset: true,
@@ -231,39 +239,39 @@ function initFloor() {
     scene.add(floor);
 }
 
-function initWater() {
-    const waterGeometry = new THREE.PlaneGeometry(200000, 100000);
+// function initWater() {
+//     const waterGeometry = new THREE.PlaneGeometry(200000, 100000);
 
-    water = new Water(
-        waterGeometry,
-        {
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load('assets/textures/waternormals.jpg', function (texture) {
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            }),
-            sunDirection: new THREE.Vector3(),
-            sunColor: 0xFFB200,
-            waterColor: 0x0097FF,
-            distortionScale: 6,
-            fog: scene.fog !== false,
-        }
-    );
+//     water = new Water(
+//         waterGeometry,
+//         {
+//             textureWidth: 512,
+//             textureHeight: 512,
+//             waterNormals: new THREE.TextureLoader().load('assets/textures/waternormals.jpg', function (texture) {
+//                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+//             }),
+//             sunDirection: new THREE.Vector3(),
+//             sunColor: 0xFFB200,
+//             waterColor: 0x0097FF,
+//             distortionScale: 6,
+//             fog: scene.fog !== false,
+//         }
+//     );
 
-    water.rotation.x = -Math.PI / 2;
-    water.material.uniforms.time = { value: 0 };
+//     water.rotation.x = -Math.PI / 2;
+//     water.material.uniforms.time = { value: 0 };
 
-    water.position.set(0, 175, 250);
-    scene.add(water);
+//     water.position.set(0, 175, 250);
+//     scene.add(water);
 
-    const mirrorCamera = new THREE.PerspectiveCamera();
-    water.material.uniforms.mirrorCamera = { value: mirrorCamera };
+//     const mirrorCamera = new THREE.PerspectiveCamera();
+//     water.material.uniforms.mirrorCamera = { value: mirrorCamera };
 
-    const rotationMatrix = new THREE.Matrix4().makeRotationX(water.rotation.x);
-    const normal = new THREE.Vector3(0, 1, 0);
+//     const rotationMatrix = new THREE.Matrix4().makeRotationX(water.rotation.x);
+//     const normal = new THREE.Vector3(0, 1, 0);
 
-    mirrorCamera.up.set(0, 1, 0).applyMatrix4(rotationMatrix).reflect(normal);
-}
+//     mirrorCamera.up.set(0, 1, 0).applyMatrix4(rotationMatrix).reflect(normal);
+// }
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
